@@ -1,0 +1,216 @@
+{
+  "Total hårdhet": {
+    "category": "teknisk",
+    "tjänligt med anmärkning": {
+      "health": "Hårt vatten innebär normalt ingen hälsorisk och innehåller naturligt förekommande kalcium och magnesium.",
+      "water_quality": "Kan ge kalkavlagringar på armaturer, glas, kakel samt i vattenkokare och kaffebryggare.",
+      "causes": "Beror på naturligt förekommande kalcium och magnesium i grundvattnet.",
+      "installations": "Kan med tiden ge kalkbeläggningar i varmvattenberedare, rör och hushållsmaskiner.",
+      "action": "Ingen åtgärd är normalt nödvändig. Om kalkavlagringar upplevs som besvärande kan en avhärdningsanläggning övervägas."
+    }
+  },
+  "Fluorid": {
+    "category": "hälsa",
+    "otjänligt": {
+      "health": "För hög fluoridhalt innebär hälsorisk, särskilt för spädbarn och barn. Långvarig exponering kan påverka tandemalj och vid högre nivåer även skelettet.",
+      "water_quality": "Ger normalt inga tydliga smak-, lukt- eller färgförändringar. Vattnet kan därför upplevas normalt trots förhöjd halt.",
+      "causes": "Beror oftast på naturligt förhöjda halter i berggrund och grundvatten.",
+      "installations": "Påverkar normalt inte installationer.",
+      "action": "Använd inte vattnet som huvudsakligt dricksvatten, särskilt inte till barn, innan åtgärd eller vidare bedömning har gjorts. Överväg omvänd osmos eller annan behandling anpassad för fluorid och följ upp med ny analys."
+    },
+    "tjänligt med anmärkning": {
+      "health": "Förhöjda fluoridhalter bör tas på allvar, särskilt för spädbarn och barn. Långvarig exponering kan påverka tandemalj och vid högre nivåer även skelettet.",
+      "water_quality": "Ger normalt inga tydliga smak-, lukt- eller färgförändringar.",
+      "causes": "Beror oftast på naturligt förekommande fluorid i berggrund och grundvatten.",
+      "installations": "Påverkar normalt inte installationer.",
+      "action": "Följ upp nivån och bedöm användningen särskilt om vattnet används av barn. Vid återkommande förhöjd nivå kan riktad rening, exempelvis omvänd osmos, behöva övervägas."
+    }
+  },
+  "Natrium": {
+    "category": "kemisk",
+    "tjänligt med anmärkning": {
+      "health": "Förhöjd natriumhalt innebär normalt ingen hälsorisk för friska personer, men kan vara olämplig för personer som ordinerats saltfattig kost eller behöver begränsa sitt natriumintag.",
+      "water_quality": "Kan ge lätt saltsmak vid högre halter.",
+      "causes": "Förhöjd natriumhalt kan bero på naturliga förhållanden i mark och grundvatten eller vattenbehandling. Om en avhärdningsanläggning används kan den bidra till förhöjda natriumhalter.",
+      "installations": "Natrium ger normalt inga tekniska problem i installationer eller hushållsutrustning.",
+      "action": "Följ upp nivån över tid och bedöm resultatet tillsammans med kloridhalten och övriga analysvärden."
+    }
+  },
+  "E. coli": {
+    "category": "mikrobiologi",
+    "otjänligt": {
+      "health": "E. coli indikerar fekal påverkan och risk för sjukdom. Vattnet bör inte användas som vanligt dricksvatten innan orsaken är utredd och åtgärdad.",
+      "water_quality": "Vattnet kan vara förorenat även om det ser klart ut och inte luktar illa.",
+      "causes": "Vanliga orsaker är otät brunn, ytvatteninträngning, avlopp, djurhållning eller annan påverkan nära brunnen.",
+      "installations": "Problemet bör i första hand utredas vid brunnen och vattenkällan.",
+      "action": "Använd tills vidare annat vatten för dryck, matlagning och tandborstning. Kontrollera brunnen, desinficera vid behov och ta om prov efter åtgärd."
+    }
+  },
+  "Koliforma bakterier": {
+    "category": "mikrobiologi",
+    "tjänligt med anmärkning": {
+      "health": "Indikerar påverkan från omgivningen, men inte alltid hälsorisk.",
+      "water_quality": "Kan påverka lukt och smak.",
+      "causes": "Ytvattenpåverkan eller brunnsproblem.",
+      "installations": "Ingen direkt påverkan.",
+      "action": "Kontrollera brunnens tätning och ta om prov."
+    }
+  },
+  "pH": {
+    "category": "teknisk",
+    "tjänligt med anmärkning": {
+      "health": "Normalt ingen direkt hälsorisk.",
+      "water_quality": "Kan påverka smak.",
+      "causes": "Naturlig geologi eller låg alkalinitet.",
+      "installations": "Kan orsaka korrosion eller utfällningar.",
+      "action": "Justera med pH-filter vid behov."
+    }
+  },
+  "Järn": {
+    "category": "teknisk",
+    "tjänligt med anmärkning": {
+      "health": "Järn i dessa nivåer innebär normalt ingen hälsorisk.",
+      "water_quality": "Vattnet kan få metallisk smak och ge bruna eller rostfärgade missfärgningar. Järn kan även gynna tillväxt av järnbakterier, vilket kan ge beläggningar och luktproblem.",
+      "causes": "Järn förekommer naturligt i många grundvatten.",
+      "installations": "Kan ge beläggningar i rör, varmvattenberedare och hushållsmaskiner samt bidra till igensättningar över tid.",
+      "action": "Om du märker smak, färg eller beläggningar kan ett järnfilter eller annan behandling vara motiverad."
+    }
+  },
+  "Mangan": {
+    "category": "teknisk",
+    "tjänligt med anmärkning": {
+      "health": "Mangan bör följas upp om nivån ligger kvar över tid, särskilt om vattnet används av barn eller känsliga grupper.",
+      "water_quality": "Kan ge svart missfärgning, mörka utfällningar, missfärgad tvätt och beläggningar i sanitet. Förhöjda manganhalter kan även orsaka igensättning av armaturer, ventiler, rör, varmvattenberedare och hushållsmaskiner över tid.",
+      "causes": "Beror ofta på syrefattigt grundvatten och förekommer ibland tillsammans med järn.",
+      "installations": "Kan ge beläggningar, igensättning och driftproblem i rör, filter, varmvattenberedare och hushållsutrustning.",
+      "action": "Mangan bör följas upp om nivån ligger kvar över tid, särskilt om vattnet används av barn eller känsliga grupper. Om problemen är återkommande kan en anpassad reningslösning vara motiverad."
+    }
+  },
+  "Klorid": {
+    "category": "kemisk",
+    "tjänligt med anmärkning": {
+      "health": "Ingen direkt hälsorisk.",
+      "water_quality": "Kan ge saltsmak, särskilt vid högre nivåer eller om halten ökar över tid.",
+      "causes": "Förhöjd kloridhalt kan bero på naturliga förhållanden i grundvattnet, saltpåverkan eller lokala förhållanden. I kustnära områden kan det vara ett tidigt tecken på saltvattenpåverkan.",
+      "installations": "Kan orsaka korrosion.",
+      "action": "Följ upp och analysera trend för att se om halterna ökar eller minskar över tid. Vid kustnära brunn bör saltvattenpåverkan utredas innan större åtgärder beslutas."
+    }
+  },
+  "Nitrat": {
+    "category": "hälsa",
+    "otjänligt": {
+      "health": "Höga nitrathalter innebär hälsorisk. Spädbarn under ett år bör inte ges vatten med förhöjda nitrathalter eftersom syretransporten i blodet kan påverkas. Nitrat kan även omvandlas till nitrit i kroppen.",
+      "water_quality": "Nitrat påverkar normalt inte lukt, smak eller färg.",
+      "causes": "Kan bero på jordbruk, gödsel, avlopp eller ytvatteninträngning.",
+      "installations": "Ger normalt inga tekniska problem i installationer.",
+      "action": "Använd inte vattnet som dricksvatten till spädbarn och små barn. Utred källan, överväg nitratrening och följ upp med ny analys."
+    },
+    "tjänligt med anmärkning": {
+      "health": "Förhöjda nitrathalter bör tas på allvar, särskilt för spädbarn, små barn och gravida samt vid långvarig användning. Spädbarn under ett år är särskilt känsliga.",
+      "water_quality": "Nitrat påverkar normalt inte lukt, smak eller färg.",
+      "causes": "Kan bero på jordbruk, gödsel, avlopp eller ytvattenpåverkan.",
+      "installations": "Ger normalt inga tekniska problem i installationer.",
+      "action": "Ta om provet och utred källan. Använd annat vatten till spädbarn och små barn tills nivån är säkerställd."
+    }
+  },
+  "Nitrit": {
+    "category": "hälsa",
+    "otjänligt": {
+      "health": "Akut hälsorisk, särskilt för spädbarn.",
+      "water_quality": "Ingen tydlig påverkan.",
+      "causes": "Nedbrytning av kväve i vatten.",
+      "installations": "Ingen påverkan.",
+      "action": "Drick inte vattnet. Utred omedelbart."
+    }
+  },
+  "Uran": {
+    "category": "hälsa",
+    "tjänligt med anmärkning": {
+      "health": "Förhöjd uranhalt bör tas på allvar vid långvarig användning som dricksvatten. Uran innebär främst en kemisk påverkan på njurarna snarare än en strålningsrisk, särskilt hos barn och känsliga grupper.",
+      "water_quality": "Uran ger normalt inga tydliga förändringar i smak, lukt eller färg. Vattnet kan därför upplevas normalt trots att halten är förhöjd.",
+      "causes": "Uran förekommer naturligt i vissa bergarter och kan lösas ut till grundvattnet, särskilt i bergborrade brunnar.",
+      "installations": "Uran påverkar normalt inte rör, varmvattenberedare eller andra installationer, men kräver riktad rening om vattnet ska användas långvarigt som dricksvatten.",
+      "action": "Använd inte vattnet som huvudsakligt dricksvatten under längre tid innan åtgärd eller vidare bedömning har gjorts. Rekommenderad åtgärd är vattenrening anpassad för uran, exempelvis omvänd osmos eller särskilt uranfilter, följt av ny kontrollanalys."
+    }
+  },
+  "Bly": {
+    "category": "hälsa",
+    "otjänligt": {
+      "health": "Förhöjd blyhalt innebär hälsorisk, särskilt för spädbarn, barn och gravida. Bly kan påverka nervsystemets utveckling och bör därför tas på stort allvar även vid låga halter.",
+      "water_quality": "Bly ger normalt inga tydliga förändringar i smak, lukt eller färg. Vattnet kan därför upplevas normalt trots att halten är förhöjd.",
+      "causes": "Bly kan komma från äldre rör, kopplingar, armaturer eller andra delar av installationen, men kan även förekomma i grundvattnet beroende på lokala förhållanden.",
+      "installations": "Installationer, ledningar och tappställen bör kontrolleras eftersom bly ibland löses ut från material i kontakt med vattnet.",
+      "action": "Använd inte vattnet som normalt dricksvatten innan orsaken är utredd och åtgärdad. Undvik särskilt användning till spädbarn, barn och gravida. Rekommenderad åtgärd är kontroll av installationer, eventuell riktad vattenrening och ny analys efter åtgärd."
+    }
+  },
+  "Kadmium": {
+    "category": "hälsa",
+    "otjänligt": {
+      "health": "Förhöjd kadmiumhalt innebär hälsorisk vid långvarig användning som dricksvatten. Kadmium kan ansamlas i kroppen och framför allt påverka njurarna över tid.",
+      "water_quality": "Kadmium ger normalt inga tydliga förändringar i smak, lukt eller färg.",
+      "causes": "Kadmium kan förekomma naturligt i berggrund och mark, men kan även påverkas av äldre material, föroreningar eller lokala omgivningsfaktorer.",
+      "installations": "Påverkar normalt inte installationer tekniskt, men installationer och material i kontakt med vattnet bör kontrolleras om källan är oklar.",
+      "action": "Använd inte vattnet som normalt dricksvatten innan orsaken är utredd och åtgärdad. Rekommenderad åtgärd är riktad utredning, vattenrening anpassad för kadmium och ny kontrollanalys efter åtgärd."
+    }
+  },
+  "Nickel": {
+    "category": "hälsa",
+    "otjänligt": {
+      "health": "Förhöjd nickelhalt kan innebära hälsorisk, särskilt för personer med nickelallergi eller känslighet. Långvarig exponering via dricksvatten bör undvikas när halten överskrider riktvärdet.",
+      "water_quality": "Nickel ger normalt inga tydliga förändringar i smak, lukt eller färg.",
+      "causes": "Nickel kan förekomma naturligt i berggrund och grundvatten, men kan även lösas ut från vissa material i installationer, kopplingar eller armaturer.",
+      "installations": "Kontrollera särskilt tappställen, armaturer och ledningsmaterial om förhöjd nickelhalt misstänks komma från installationen.",
+      "action": "Använd inte vattnet som huvudsakligt dricksvatten innan orsaken har utretts. Rekommenderad åtgärd är kontroll av installationer, eventuell riktad vattenrening och ny analys efter åtgärd."
+    }
+  },
+  "Krom": {
+    "category": "hälsa",
+    "otjänligt": {
+      "health": "Förhöjd kromhalt innebär att vattnet inte bör användas som normalt dricksvatten innan orsaken är utredd. Hälsorisken beror bland annat på kromform och exponeringstid.",
+      "water_quality": "Krom ger normalt inga tydliga förändringar i smak, lukt eller färg.",
+      "causes": "Krom kan förekomma naturligt i vissa bergarter, men kan även vara kopplat till materialpåverkan eller lokala föroreningskällor.",
+      "installations": "Installationer och material i kontakt med vattnet bör kontrolleras om källan till förhöjd kromhalt är oklar.",
+      "action": "Använd inte vattnet som normalt dricksvatten innan vidare bedömning har gjorts. Rekommenderad åtgärd är riktad utredning av källan, lämplig vattenrening och ny kontrollanalys efter åtgärd."
+    }
+  },
+  "Selen": {
+    "category": "hälsa",
+    "otjänligt": {
+      "health": "Förhöjd selenhalt kan innebära hälsorisk vid långvarig användning som dricksvatten. Selen är ett ämne kroppen behöver i små mängder, men för höga halter kan vara skadliga över tid.",
+      "water_quality": "Selen ger normalt inga tydliga förändringar i smak, lukt eller färg.",
+      "causes": "Selen kan förekomma naturligt i berggrund och mark och lösas ut till grundvattnet beroende på lokala geologiska förhållanden.",
+      "installations": "Påverkar normalt inte installationer tekniskt.",
+      "action": "Använd inte vattnet som normalt dricksvatten innan halten har bedömts och åtgärdats. Rekommenderad åtgärd är vattenrening anpassad för selen och ny kontrollanalys efter åtgärd."
+    }
+  },
+  "Antimon": {
+    "category": "hälsa",
+    "otjänligt": {
+      "health": "Förhöjd antimonhalt innebär att vattnet inte bör användas som normalt dricksvatten innan orsaken är utredd. Långvarig exponering över riktvärdet bör undvikas.",
+      "water_quality": "Antimon ger normalt inga tydliga förändringar i smak, lukt eller färg.",
+      "causes": "Antimon kan förekomma naturligt i vissa geologiska miljöer, men kan även vara kopplat till material, installationer eller lokal föroreningspåverkan.",
+      "installations": "Installationer och material i kontakt med vattnet bör kontrolleras om källan är oklar.",
+      "action": "Använd inte vattnet som normalt dricksvatten innan vidare utredning har gjorts. Rekommenderad åtgärd är att utreda källan, installera lämplig rening vid behov och följa upp med ny analys."
+    }
+  },
+  "Aluminium": {
+    "category": "teknisk",
+    "tjänligt med anmärkning": {
+      "health": "Förhöjt aluminium bör bedömas tillsammans med pH, alkalinitet och övriga analysvärden. Det innebär inte automatiskt en akut hälsorisk, men bör följas upp om halten är återkommande.",
+      "water_quality": "Kan ibland hänga samman med påverkan på färg, grumlighet eller metallutfällningar, men behöver tolkas tillsammans med övriga värden.",
+      "causes": "Kan bero på naturliga markförhållanden, surt vatten eller påverkan från installationer.",
+      "installations": "Vid lågt pH kan korrosion och urlakning från material i installationer bidra till metallhalter.",
+      "action": "Bedöm aluminium tillsammans med pH, alkalinitet och eventuell korrosionspåverkan. Ta omprov eller komplettera utredning om halten kvarstår."
+    }
+  },
+  "Radon": {
+    "category": "hälsa",
+    "otjänligt": {
+      "health": "Förhöjd radonhalt innebär hälsorisk vid långvarig exponering, främst genom ökad risk för lungcancer.",
+      "water_quality": "Radon påverkar normalt inte lukt, smak eller färg.",
+      "causes": "Radon förekommer naturligt i berggrund och kan lösas i grundvatten, särskilt i bergborrade brunnar.",
+      "installations": "Den största exponeringen sker normalt genom inandning när radon avgår från vattnet vid duschning, tvätt och annan användning.",
+      "action": "Installera radonavskiljare eller annan lämplig luftningslösning och följ upp med ny analys."
+    }
+  }
+}
