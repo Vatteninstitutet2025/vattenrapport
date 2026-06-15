@@ -518,37 +518,44 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
       background: var(--brand);
     }}
 
-.table-wrap {
-  overflow: visible;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  margin-top: 0;
-  background: #ffffff;
-  break-inside: auto;
-  page-break-inside: auto;
-}
+    .parameter-section {{
+      margin-top: 6mm;
+      break-inside: auto;
+      page-break-inside: auto;
+    }}
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 10.8px;
-  background: #ffffff;
-  break-inside: auto;
-  page-break-inside: auto;
-}
+    .parameter-section h3 {{
+      margin: 0 0 8px;
+      break-after: avoid;
+      page-break-after: avoid;
+    }}
 
-thead {
-  display: table-header-group;
-}
+    .table-wrap {{
+      overflow: visible;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      margin-top: 0;
+      background: #ffffff;
+      break-inside: auto;
+      page-break-inside: auto;
+    }}
 
-tbody {
-  display: table-row-group;
-}
+    table {{
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 10.8px;
+      background: #ffffff;
+      break-inside: auto;
+      page-break-inside: auto;
+    }}
 
-tr {
-  break-inside: avoid;
-  page-break-inside: avoid;
-}
+    thead {{ display: table-header-group; }}
+    tbody {{ display: table-row-group; }}
+
+    tr {{
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }}
 
     .empty {{ color: var(--muted); }}
 
@@ -564,7 +571,15 @@ tr {
       html, body {{ background: #ffffff; font-size: 12px; }}
       .page {{ width: 100%; max-width: none; margin: 0; padding: 0; }}
       .hero, .card, .report-meta, .status-card {{ box-shadow: none; }}
-      section, .card, .finding, table, tr, td, th {{
+      section, .card, .finding {{
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }}
+      .parameter-section, .table-wrap, table {{
+        break-inside: auto;
+        page-break-inside: auto;
+      }}
+      tr {{
         break-inside: avoid;
         page-break-inside: avoid;
       }}
