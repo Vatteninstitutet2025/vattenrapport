@@ -242,29 +242,31 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
   <style>
     @page {{
       size: A4;
-      margin: 10mm 11mm 11mm 11mm;
+      margin: 9mm 10mm 10mm 10mm;
     }}
 
     :root {{
-      --surface: #ffffff;
-      --surface-soft: #f8fafc;
-      --ink: #0f172a;
+      --ink: #111827;
+      --text: #334155;
       --muted: #64748b;
-      --line: #d7dee8;
-      --line-soft: #e8edf3;
+      --line: #dbe3ee;
+      --line-soft: #edf2f7;
+      --panel: #ffffff;
+      --panel-soft: #f8fafc;
       --brand: #0f766e;
-      --brand-dark: #115e59;
-      --brand-soft: #ecfdf5;
+      --brand-dark: #0f4f4a;
+      --brand-soft: #e6fffb;
+      --blue-soft: #eff6ff;
       --warn-soft: #fff7ed;
-      --warn-line: #fed7aa;
+      --warn-line: #fdba74;
       --danger-soft: #fff1f2;
-      --danger-line: #fecdd3;
+      --danger-line: #fda4af;
       --good-soft: #f0fdf4;
-      --good-line: #bbf7d0;
+      --good-line: #86efac;
       --unknown-soft: #f8fafc;
       --unknown-line: #cbd5e1;
-      --radius-lg: 10px;
-      --radius-md: 8px;
+      --radius-lg: 14px;
+      --radius-md: 10px;
       --radius-sm: 999px;
     }}
 
@@ -276,39 +278,40 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
       background: #ffffff;
       color: var(--ink);
       font-family: Arial, Helvetica, sans-serif;
-      font-size: 12.5px;
+      font-size: 12.2px;
       line-height: 1.48;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
     }}
 
-    body {{ width: 100%; }}
-
     .page {{
       width: 100%;
-      max-width: none;
       margin: 0;
       padding: 0;
     }}
 
     .topbar {{
       display: grid;
-      grid-template-columns: 1fr 74mm;
-      gap: 10mm;
-      align-items: start;
-      padding-bottom: 7mm;
-      margin-bottom: 6mm;
-      border-bottom: 2px solid var(--brand);
+      grid-template-columns: minmax(0, 1fr) 72mm;
+      gap: 8mm;
+      align-items: stretch;
+      margin-bottom: 7mm;
+    }}
+
+    .brand-block {{
+      border-radius: 18px;
+      padding: 7mm 7mm 6mm;
+      background: linear-gradient(135deg, #0f766e 0%, #0f4f4a 100%);
+      color: #ffffff;
     }}
 
     .eyebrow {{
       display: inline-block;
       padding: 3px 8px;
-      border: 1px solid rgba(15, 118, 110, 0.25);
       border-radius: var(--radius-sm);
-      background: #f0fdfa;
-      color: var(--brand-dark);
-      font-size: 9.5px;
+      background: rgba(255,255,255,0.16);
+      color: #d9fffb;
+      font-size: 9.2px;
       font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
@@ -316,41 +319,47 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
 
     h1, h2, h3 {{
       margin: 0;
+      line-height: 1.15;
       color: var(--ink);
-      line-height: 1.16;
     }}
 
-    h1 {{
-      margin-top: 8px;
-      font-size: 29px;
-      letter-spacing: -0.02em;
+    .brand-block h1 {{
+      margin-top: 7px;
+      color: #ffffff;
+      font-size: 31px;
+      letter-spacing: -0.035em;
     }}
 
-    h2 {{ font-size: 18px; }}
-    h3 {{ font-size: 14px; }}
+    .brand-subtitle {{
+      margin-top: 5px;
+      color: #d9fffb;
+      font-size: 12.3px;
+    }}
+
+    h2 {{ font-size: 18px; letter-spacing: -0.02em; }}
+    h3 {{ font-size: 13.5px; letter-spacing: -0.01em; }}
 
     p {{
       margin: 0.45em 0 0;
-      color: #334155;
+      color: var(--text);
     }}
 
     strong {{ color: var(--ink); font-weight: 700; }}
-    section {{ margin-top: 6mm; }}
+    section {{ margin-top: 5.3mm; }}
 
     .report-meta {{
       border: 1px solid var(--line);
-      border-radius: var(--radius-md);
-      background: #ffffff;
-      padding: 9px 11px;
-      font-size: 11px;
-      color: var(--muted);
+      border-radius: var(--radius-lg);
+      background: var(--panel);
+      padding: 5mm;
+      font-size: 10.8px;
     }}
 
     .meta-line {{
       display: grid;
       grid-template-columns: 1fr 1.35fr;
       gap: 8px;
-      padding: 3px 0;
+      padding: 4px 0;
       border-bottom: 1px solid var(--line-soft);
     }}
 
@@ -360,38 +369,40 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
 
     .hero {{
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 64mm;
-      gap: 6mm;
-      align-items: start;
-      padding: 0;
-      border: 0;
-      border-radius: 0;
-      background: #ffffff;
-      box-shadow: none;
-      overflow: visible;
-      position: relative;
+      grid-template-columns: minmax(0, 1fr) 63mm;
+      gap: 5mm;
+      align-items: stretch;
     }}
 
     .hero-title {{
+      position: relative;
       padding: 6mm;
       border: 1px solid var(--line);
-      border-left: 4px solid var(--brand);
       border-radius: var(--radius-lg);
-      background: #ffffff;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    }}
+
+    .hero-title:before {{
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+      background: var(--brand);
     }}
 
     .hero-title p {{
       max-width: none;
-      font-size: 12.5px;
-      color: #334155;
+      font-size: 12.3px;
+      color: var(--text);
     }}
 
     .status-panel {{
       display: grid;
       gap: 3mm;
       align-content: start;
-      position: relative;
-      z-index: 1;
     }}
 
     .status-card {{
@@ -402,7 +413,7 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
     }}
 
     .status-label {{
-      font-size: 9.5px;
+      font-size: 9.2px;
       color: var(--muted);
       text-transform: uppercase;
       letter-spacing: 0.06em;
@@ -414,8 +425,8 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
       align-items: center;
       gap: 7px;
       margin-top: 4px;
-      font-weight: 700;
-      font-size: 12.5px;
+      font-weight: 800;
+      font-size: 12.4px;
     }}
 
     .dot {{
@@ -430,17 +441,14 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
     .grid {{
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 5mm;
+      gap: 4.5mm;
     }}
-
-    .wide {{ grid-column: 1 / -1; }}
 
     .card {{
       border: 1px solid var(--line);
       border-radius: var(--radius-lg);
-      padding: 5mm;
+      padding: 4.8mm;
       background: #ffffff;
-      box-shadow: none;
     }}
 
     .card-header {{
@@ -453,9 +461,9 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
 
     .kicker {{
       color: var(--brand-dark);
-      font-size: 9.5px;
-      font-weight: 700;
-      letter-spacing: 0.07em;
+      font-size: 9.2px;
+      font-weight: 800;
+      letter-spacing: 0.075em;
       text-transform: uppercase;
       margin-bottom: 3px;
     }}
@@ -464,21 +472,21 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
       border: 1px solid var(--line);
       border-left-width: 4px;
       border-radius: var(--radius-md);
-      padding: 11px 12px;
-      margin-top: 8px;
+      padding: 10px 11px;
+      margin-top: 7px;
       background: #ffffff;
     }}
 
     .finding-head {{
-      font-weight: 700;
-      margin-bottom: 6px;
+      font-weight: 800;
+      margin-bottom: 5px;
       color: var(--ink);
     }}
 
     .meta-row {{
       margin-top: 2px;
       color: #475569;
-      font-size: 11.5px;
+      font-size: 11.2px;
     }}
 
     .status-unfit {{ background: var(--danger-soft); border-color: var(--danger-line); }}
@@ -496,22 +504,22 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
 
     ul {{
       padding-left: 0;
-      margin: 8px 0 0;
+      margin: 7px 0 0;
       list-style: none;
     }}
 
     li {{
       position: relative;
-      margin: 6px 0;
-      padding-left: 16px;
-      color: #334155;
+      margin: 5px 0;
+      padding-left: 15px;
+      color: var(--text);
     }}
 
     li:before {{
       content: "";
       position: absolute;
       left: 0;
-      top: 0.68em;
+      top: 0.66em;
       width: 5px;
       height: 5px;
       border-radius: 99px;
@@ -524,11 +532,16 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
       page-break-inside: auto;
     }}
 
-    .parameter-section h3 {{
-      margin: 0 0 8px;
-      break-after: avoid;
-      page-break-after: avoid;
+    .parameter-title {{
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 7px;
     }}
+
+    .parameter-title h3 {{ margin: 0; }}
+    .parameter-note {{ color: var(--muted); font-size: 9.8px; }}
 
     .table-wrap {{
       overflow: visible;
@@ -543,7 +556,7 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
     table {{
       width: 100%;
       border-collapse: collapse;
-      font-size: 10.8px;
+      font-size: 10.35px;
       background: #ffffff;
       break-inside: auto;
       page-break-inside: auto;
@@ -552,15 +565,35 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
     thead {{ display: table-header-group; }}
     tbody {{ display: table-row-group; }}
 
+    th, td {{
+      border-bottom: 1px solid var(--line-soft);
+      padding: 6px 7px;
+      text-align: left;
+      vertical-align: top;
+      overflow-wrap: anywhere;
+    }}
+
+    th {{
+      background: #f1f5f9;
+      color: #475569;
+      font-size: 8.8px;
+      text-transform: uppercase;
+      letter-spacing: 0.045em;
+      font-weight: 800;
+    }}
+
     tr {{
       break-inside: avoid;
       page-break-inside: avoid;
     }}
 
+    tr:last-child td {{ border-bottom: 0; }}
+    td:first-child {{ font-weight: 800; color: var(--ink); }}
+
     .empty {{ color: var(--muted); }}
 
     .disclaimer {{
-      font-size: 9.5px;
+      font-size: 9.2px;
       color: #64748b;
       margin-top: 7mm;
       padding-top: 4mm;
@@ -568,9 +601,9 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
     }}
 
     @media print {{
-      html, body {{ background: #ffffff; font-size: 12px; }}
+      html, body {{ background: #ffffff; font-size: 11.8px; }}
       .page {{ width: 100%; max-width: none; margin: 0; padding: 0; }}
-      .hero, .card, .report-meta, .status-card {{ box-shadow: none; }}
+      .card, .finding, .hero-title, .report-meta, .status-card {{ box-shadow: none; }}
       section, .card, .finding {{
         break-inside: avoid;
         page-break-inside: avoid;
@@ -583,8 +616,8 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
         break-inside: avoid;
         page-break-inside: avoid;
       }}
-      h2, h3 {{ break-after: avoid; page-break-after: avoid; }}
-      .grid {{ grid-template-columns: 1fr 1fr; gap: 5mm; }}
+      h2, h3, .parameter-title {{ break-after: avoid; page-break-after: avoid; }}
+      .grid {{ grid-template-columns: 1fr 1fr; gap: 4.5mm; }}
     }}
   </style>
 </head>
@@ -687,8 +720,11 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
     </section>
 
     <section class="parameter-section">
-  <h3>Alla parametrar</h3>
-  <div class="table-wrap">
+      <div class="parameter-title">
+        <h3>Alla parametrar</h3>
+        <span class="parameter-note">Fullständig parameteröversikt</span>
+      </div>
+      <div class="table-wrap">
     <table>
       <thead>
         <tr><th>Parameter</th><th>Värde</th><th>Kategori</th><th>Riktvärden</th><th>Status</th></tr>
