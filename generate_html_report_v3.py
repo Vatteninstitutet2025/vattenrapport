@@ -35,9 +35,17 @@ def list_items(items: list[str]) -> str:
 def find_browser() -> str | None:
     candidates = [
         shutil.which("msedge"),
+        shutil.which("microsoft-edge"),
         shutil.which("chrome"),
         shutil.which("google-chrome"),
+        shutil.which("google-chrome-stable"),
         shutil.which("chromium"),
+        shutil.which("chromium-browser"),
+        "/usr/bin/google-chrome",
+        "/usr/bin/google-chrome-stable",
+        "/usr/bin/chromium",
+        "/usr/bin/chromium-browser",
+        "/snap/bin/chromium",
         r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
         r"C:\Program Files\Google\Chrome\Application\chrome.exe",
         r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
@@ -49,12 +57,7 @@ def find_browser() -> str | None:
     return None
 
 
-def generate_pdf(html_path: Path, pdf_path: Path) -> None:
-    browser = find_browser()
-    if not browser:
-        raise RuntimeError("Hittar inte Chrome/Edge. Installera Chrome eller Edge, eller lägg webbläsaren i PATH.")
-
-    pdf_path.parent.mkdir(parents=True, exist_ok=True)
+def _generate_pdf_with_browser(html_path: Path, pdf_path: Path, browser: str) -> None:
     subprocess.run(
         [
             browser,
@@ -66,7 +69,81 @@ def generate_pdf(html_path: Path, pdf_path: Path) -> None:
             html_path.resolve().as_uri(),
         ],
         check=True,
+        timeout=30,
     )
+
+
+def _generate_pdf_with_weasyprint(html_path: Path, pdf_path: Path) -> None:
+    from weasyprint import HTML
+
+    HTML(filename=str(html_path)).write_pdf(str(pdf_path))
+
+
+def _write_minimal_pdf(pdf_path: Path, text: str) -> None:
+    # Sista fallbacken om varken Chrome/Chromium eller WeasyPrint finns i servermiljön.
+    # Den skapar en enkel, giltig PDF så att hela rapportflödet inte kraschar.
+    import re
+    import textwrap
+
+    cleaned = re.sub(r"<style.*?</style>", "", text, flags=re.S | re.I)
+    cleaned = re.sub(r"<script.*?</script>", "", cleaned, flags=re.S | re.I)
+    cleaned = re.sub(r"<[^>]+>", " ", cleaned)
+    cleaned = re.sub(r"\s+", " ", cleaned).strip()
+    lines = [
+        "PDF-renderare saknas i servermiljön.",
+        "HTML-rapporten skapades korrekt, men layout-PDF kunde inte renderas.",
+        "",
+        *textwrap.wrap(cleaned[:3500], 92),
+    ]
+
+    stream_parts = ["BT /F1 9 Tf 40 800 Td"]
+    for line in lines[:70]:
+        safe = line.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
+        stream_parts.append(f"({safe}) Tj 0 -12 Td")
+    stream_parts.append("ET")
+    stream = "\n".join(stream_parts).encode("latin-1", "replace")
+
+    objects = []
+    objects.append(b"1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj\n")
+    objects.append(b"2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj\n")
+    objects.append(b"3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >> endobj\n")
+    objects.append(b"4 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj\n")
+    objects.append(f"5 0 obj << /Length {len(stream)} >> stream\n".encode() + stream + b"\nendstream endobj\n")
+
+    out = bytearray(b"%PDF-1.4\n")
+    offsets = [0]
+    for obj in objects:
+        offsets.append(len(out))
+        out.extend(obj)
+    xref = len(out)
+    out.extend(f"xref\n0 {len(objects)+1}\n0000000000 65535 f \n".encode())
+    for off in offsets[1:]:
+        out.extend(f"{off:010d} 00000 n \n".encode())
+    out.extend(f"trailer << /Root 1 0 R /Size {len(objects)+1} >>\nstartxref\n{xref}\n%%EOF".encode())
+    pdf_path.write_bytes(out)
+
+
+def generate_pdf(html_path: Path, pdf_path: Path) -> None:
+    pdf_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # WeasyPrint är bäst i servermiljöer som Render eftersom det inte kräver Chrome/Edge.
+    try:
+        _generate_pdf_with_weasyprint(html_path, pdf_path)
+        return
+    except Exception as exc:
+        print(f"VARNING: WeasyPrint kunde inte skapa PDF ({exc}). Försöker med Chrome/Chromium.")
+
+    browser = find_browser()
+    if browser:
+        try:
+            _generate_pdf_with_browser(html_path, pdf_path, browser)
+            return
+        except Exception as exc:
+            print(f"VARNING: Chrome/Chromium kunde inte skapa PDF ({exc}). Skapar enkel fallback-PDF så flödet inte kraschar.")
+    else:
+        print("VARNING: Hittar varken WeasyPrint eller Chrome/Chromium. Skapar enkel fallback-PDF så flödet inte kraschar.")
+
+    _write_minimal_pdf(pdf_path, html_path.read_text(encoding="utf-8", errors="replace"))
 
 
 def status_class(status: str) -> str:
