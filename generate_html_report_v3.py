@@ -50,23 +50,10 @@ def find_browser() -> str | None:
 
 
 def generate_pdf(html_path: Path, pdf_path: Path) -> None:
-    browser = find_browser()
-    if not browser:
-        raise RuntimeError("Hittar inte Chrome/Edge. Installera Chrome eller Edge, eller lägg webbläsaren i PATH.")
+    from weasyprint import HTML
 
     pdf_path.parent.mkdir(parents=True, exist_ok=True)
-    subprocess.run(
-        [
-            browser,
-            "--headless=new",
-            "--disable-gpu",
-            "--no-sandbox",
-            "--no-pdf-header-footer",
-            f"--print-to-pdf={pdf_path}",
-            html_path.resolve().as_uri(),
-        ],
-        check=True,
-    )
+    HTML(filename=str(html_path)).write_pdf(str(pdf_path))
 
 
 def status_class(status: str) -> str:
