@@ -163,143 +163,207 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
   <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">
   <title>Vattenrapport</title>
   <style>
-    @page {{ size: A4; margin: 12mm; }}
+    @page {{
+      size: A4;
+      margin: 10mm 11mm 11mm 11mm;
+    }}
 
     :root {{
-      --bg: #f6f8fb;
       --surface: #ffffff;
       --surface-soft: #f8fafc;
       --ink: #0f172a;
       --muted: #64748b;
-      --line: #e2e8f0;
+      --line: #d7dee8;
+      --line-soft: #e8edf3;
       --brand: #0f766e;
-      --brand-soft: #ccfbf1;
-      --shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
-      --radius-lg: 22px;
-      --radius-md: 16px;
+      --brand-dark: #115e59;
+      --brand-soft: #ecfdf5;
+      --warn-soft: #fff7ed;
+      --warn-line: #fed7aa;
+      --danger-soft: #fff1f2;
+      --danger-line: #fecdd3;
+      --good-soft: #f0fdf4;
+      --good-line: #bbf7d0;
+      --unknown-soft: #f8fafc;
+      --unknown-line: #cbd5e1;
+      --radius-lg: 10px;
+      --radius-md: 8px;
       --radius-sm: 999px;
     }}
 
     * {{ box-sizing: border-box; }}
 
-    body {{
+    html, body {{
       margin: 0;
-      background:
-        radial-gradient(circle at top left, rgba(15, 118, 110, 0.10), transparent 34%),
-        linear-gradient(180deg, #ffffff 0%, var(--bg) 55%, #ffffff 100%);
+      padding: 0;
+      background: #ffffff;
       color: var(--ink);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Arial, sans-serif;
-      font-size: 14px;
-      line-height: 1.6;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 12.5px;
+      line-height: 1.48;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
     }}
 
-    .page {{ max-width: 1080px; margin: 0 auto; padding: 30px 18px 38px; }}
+    body {{ width: 100%; }}
+
+    .page {{
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 0;
+    }}
 
     .topbar {{
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 20px;
-      margin-bottom: 18px;
+      display: grid;
+      grid-template-columns: 1fr 74mm;
+      gap: 10mm;
+      align-items: start;
+      padding-bottom: 7mm;
+      margin-bottom: 6mm;
+      border-bottom: 2px solid var(--brand);
     }}
 
     .eyebrow {{
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 11px;
-      border: 1px solid rgba(15, 118, 110, 0.18);
+      display: inline-block;
+      padding: 3px 8px;
+      border: 1px solid rgba(15, 118, 110, 0.25);
       border-radius: var(--radius-sm);
-      background: rgba(204, 251, 241, 0.55);
-      color: #115e59;
-      font-size: 11px;
-      font-weight: 750;
+      background: #f0fdfa;
+      color: var(--brand-dark);
+      font-size: 9.5px;
+      font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
     }}
 
-    h1, h2, h3 {{ margin: 0; letter-spacing: -0.025em; }}
-    h1 {{ margin-top: 12px; font-size: 38px; line-height: 1.04; }}
-    h2 {{ font-size: 20px; }}
-    h3 {{ font-size: 15px; }}
+    h1, h2, h3 {{
+      margin: 0;
+      color: var(--ink);
+      line-height: 1.16;
+    }}
 
-    p {{ margin: 0.55em 0 0; color: #334155; }}
-    strong {{ color: var(--ink); font-weight: 760; }}
-    section {{ margin-top: 16px; }}
+    h1 {{
+      margin-top: 8px;
+      font-size: 29px;
+      letter-spacing: -0.02em;
+    }}
+
+    h2 {{ font-size: 18px; }}
+    h3 {{ font-size: 14px; }}
+
+    p {{
+      margin: 0.45em 0 0;
+      color: #334155;
+    }}
+
+    strong {{ color: var(--ink); font-weight: 700; }}
+    section {{ margin-top: 6mm; }}
 
     .report-meta {{
-      min-width: 230px;
       border: 1px solid var(--line);
       border-radius: var(--radius-md);
-      background: rgba(255, 255, 255, 0.82);
-      padding: 13px 14px;
-      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
-      font-size: 12px;
+      background: #ffffff;
+      padding: 9px 11px;
+      font-size: 11px;
       color: var(--muted);
     }}
 
-    .meta-line {{ display: flex; justify-content: space-between; gap: 18px; padding: 4px 0; }}
+    .meta-line {{
+      display: grid;
+      grid-template-columns: 1fr 1.35fr;
+      gap: 8px;
+      padding: 3px 0;
+      border-bottom: 1px solid var(--line-soft);
+    }}
+
+    .meta-line:last-child {{ border-bottom: 0; }}
     .meta-line span:first-child {{ color: var(--muted); }}
-    .meta-line span:last-child {{ color: var(--ink); font-weight: 700; text-align: right; }}
+    .meta-line span:last-child {{ color: var(--ink); font-weight: 700; text-align: right; overflow-wrap: anywhere; }}
 
     .hero {{
       display: grid;
-      grid-template-columns: 1.12fr 0.88fr;
-      gap: 18px;
-      align-items: stretch;
-      padding: 22px;
-      border: 1px solid rgba(226, 232, 240, 0.9);
-      border-radius: 28px;
-      background: rgba(255, 255, 255, 0.9);
-      box-shadow: var(--shadow);
-      overflow: hidden;
+      grid-template-columns: minmax(0, 1fr) 64mm;
+      gap: 6mm;
+      align-items: start;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: #ffffff;
+      box-shadow: none;
+      overflow: visible;
       position: relative;
     }}
 
-    .hero:before {{
-      content: \"\";
-      position: absolute;
-      width: 220px;
-      height: 220px;
-      right: -80px;
-      top: -90px;
-      border-radius: 999px;
-      background: rgba(15, 118, 110, 0.10);
+    .hero-title {{
+      padding: 6mm;
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--brand);
+      border-radius: var(--radius-lg);
+      background: #ffffff;
     }}
 
-    .hero-title {{ position: relative; z-index: 1; }}
-    .hero-title p {{ max-width: 650px; font-size: 15px; color: #475569; }}
+    .hero-title p {{
+      max-width: none;
+      font-size: 12.5px;
+      color: #334155;
+    }}
 
     .status-panel {{
+      display: grid;
+      gap: 3mm;
+      align-content: start;
       position: relative;
       z-index: 1;
-      display: grid;
-      gap: 10px;
-      align-content: start;
     }}
 
     .status-card {{
       border: 1px solid var(--line);
       border-radius: var(--radius-md);
-      padding: 13px 14px;
-      background: var(--surface);
+      padding: 10px 11px;
+      background: #ffffff;
     }}
 
-    .status-label {{ font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 750; }}
-    .status-value {{ display: flex; align-items: center; gap: 8px; margin-top: 4px; font-weight: 820; font-size: 15px; }}
-    .dot {{ width: 9px; height: 9px; border-radius: 99px; display: inline-block; background: #94a3b8; }}
+    .status-label {{
+      font-size: 9.5px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 700;
+    }}
 
-    .grid {{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }}
+    .status-value {{
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-top: 4px;
+      font-weight: 700;
+      font-size: 12.5px;
+    }}
+
+    .dot {{
+      width: 8px;
+      height: 8px;
+      border-radius: 99px;
+      display: inline-block;
+      background: #94a3b8;
+      flex: 0 0 auto;
+    }}
+
+    .grid {{
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 5mm;
+    }}
+
     .wide {{ grid-column: 1 / -1; }}
 
     .card {{
       border: 1px solid var(--line);
       border-radius: var(--radius-lg);
-      padding: 18px 18px 17px;
-      background: rgba(255, 255, 255, 0.94);
-      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.045);
+      padding: 5mm;
+      background: #ffffff;
+      box-shadow: none;
     }}
 
     .card-header {{
@@ -307,68 +371,131 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
       justify-content: space-between;
       align-items: center;
       gap: 12px;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }}
 
-    .kicker {{ color: var(--muted); font-size: 11px; font-weight: 760; letter-spacing: 0.07em; text-transform: uppercase; }}
+    .kicker {{
+      color: var(--brand-dark);
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }}
 
     .finding {{
       border: 1px solid var(--line);
+      border-left-width: 4px;
       border-radius: var(--radius-md);
-      padding: 14px 15px;
-      margin-top: 10px;
-      background: var(--surface-soft);
+      padding: 11px 12px;
+      margin-top: 8px;
+      background: #ffffff;
     }}
 
-    .finding-head {{ display: flex; justify-content: space-between; gap: 12px; font-weight: 820; margin-bottom: 8px; }}
-    .finding-head span:last-child {{ color: var(--muted); font-weight: 700; white-space: nowrap; }}
-    .meta-row {{ margin-top: 3px; color: #475569; font-size: 13px; }}
+    .finding-head {{
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--ink);
+    }}
 
-    .status-unfit {{ background: #fff1f2; border-color: #fecdd3; }}
-    .status-remark {{ background: #fff7ed; border-color: #fed7aa; }}
-    .status-good {{ background: #f0fdf4; border-color: #bbf7d0; }}
-    .status-unknown {{ background: #f8fafc; border-color: #cbd5e1; }}
+    .meta-row {{
+      margin-top: 2px;
+      color: #475569;
+      font-size: 11.5px;
+    }}
+
+    .status-unfit {{ background: var(--danger-soft); border-color: var(--danger-line); }}
+    .status-remark {{ background: var(--warn-soft); border-color: var(--warn-line); }}
+    .status-good {{ background: var(--good-soft); border-color: var(--good-line); }}
+    .status-unknown {{ background: var(--unknown-soft); border-color: var(--unknown-line); }}
+    .finding.status-unfit {{ border-left-color: #e11d48; }}
+    .finding.status-remark {{ border-left-color: #f97316; }}
+    .finding.status-good {{ border-left-color: #16a34a; }}
+    .finding.status-unknown {{ border-left-color: #94a3b8; }}
     .status-unfit .dot {{ background: #e11d48; }}
     .status-remark .dot {{ background: #f97316; }}
     .status-good .dot {{ background: #16a34a; }}
     .status-unknown .dot {{ background: #94a3b8; }}
 
-    ul {{ padding-left: 0; margin: 10px 0 0; list-style: none; }}
+    ul {{
+      padding-left: 0;
+      margin: 8px 0 0;
+      list-style: none;
+    }}
+
     li {{
       position: relative;
-      margin: 8px 0;
-      padding-left: 20px;
+      margin: 6px 0;
+      padding-left: 16px;
       color: #334155;
     }}
+
     li:before {{
-      content: \"\";
+      content: "";
       position: absolute;
       left: 0;
-      top: 0.72em;
-      width: 7px;
-      height: 7px;
+      top: 0.68em;
+      width: 5px;
+      height: 5px;
       border-radius: 99px;
       background: var(--brand);
     }}
 
-    .table-wrap {{ overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius-md); margin-top: 12px; }}
-    table {{ width: 100%; border-collapse: collapse; font-size: 12px; background: #fff; }}
-    th, td {{ border-bottom: 1px solid var(--line); padding: 10px 11px; text-align: left; vertical-align: top; }}
-    th {{ background: #f8fafc; color: #475569; font-size: 11px; text-transform: uppercase; letter-spacing: 0.055em; }}
+    .table-wrap {{
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      margin-top: 9px;
+      background: #ffffff;
+    }}
+
+    table {{
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 10.8px;
+      background: #ffffff;
+    }}
+
+    th, td {{
+      border-bottom: 1px solid var(--line-soft);
+      padding: 7px 8px;
+      text-align: left;
+      vertical-align: top;
+    }}
+
+    th {{
+      background: #f8fafc;
+      color: #475569;
+      font-size: 9.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.045em;
+      font-weight: 700;
+    }}
+
     tr:last-child td {{ border-bottom: 0; }}
-    td:first-child {{ font-weight: 740; color: var(--ink); }}
+    td:first-child {{ font-weight: 700; color: var(--ink); }}
+    td {{ overflow-wrap: anywhere; }}
 
     .empty {{ color: var(--muted); }}
-    .disclaimer {{ font-size: 10.5px; color: #64748b; margin-top: 22px; padding: 0 4px; }}
+
+    .disclaimer {{
+      font-size: 9.5px;
+      color: #64748b;
+      margin-top: 7mm;
+      padding-top: 4mm;
+      border-top: 1px solid var(--line-soft);
+    }}
 
     @media print {{
-      body {{ background: #fff; font-size: 12px; }}
-      .page {{ padding: 0; max-width: none; }}
-      .hero, .card, .report-meta {{ box-shadow: none; }}
-      .hero {{ border-radius: 22px; }}
-      section, .card, .finding, table, tr, td, th {{ break-inside: avoid; page-break-inside: avoid; }}
+      html, body {{ background: #ffffff; font-size: 12px; }}
+      .page {{ width: 100%; max-width: none; margin: 0; padding: 0; }}
+      .hero, .card, .report-meta, .status-card {{ box-shadow: none; }}
+      section, .card, .finding, table, tr, td, th {{
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }}
       h2, h3 {{ break-after: avoid; page-break-after: avoid; }}
-      .grid {{ grid-template-columns: 1fr 1fr; gap: 12px; }}
+      .grid {{ grid-template-columns: 1fr 1fr; gap: 5mm; }}
     }}
   </style>
 </head>
