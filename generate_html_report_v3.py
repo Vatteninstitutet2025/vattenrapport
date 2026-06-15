@@ -518,40 +518,37 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
       background: var(--brand);
     }}
 
-    .table-wrap {{
-      overflow: hidden;
-      border: 1px solid var(--line);
-      border-radius: var(--radius-md);
-      margin-top: 9px;
-      background: #ffffff;
-    }}
+.table-wrap {
+  overflow: visible;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  margin-top: 0;
+  background: #ffffff;
+  break-inside: auto;
+  page-break-inside: auto;
+}
 
-    table {{
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 10.8px;
-      background: #ffffff;
-    }}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10.8px;
+  background: #ffffff;
+  break-inside: auto;
+  page-break-inside: auto;
+}
 
-    th, td {{
-      border-bottom: 1px solid var(--line-soft);
-      padding: 7px 8px;
-      text-align: left;
-      vertical-align: top;
-    }}
+thead {
+  display: table-header-group;
+}
 
-    th {{
-      background: #f8fafc;
-      color: #475569;
-      font-size: 9.5px;
-      text-transform: uppercase;
-      letter-spacing: 0.045em;
-      font-weight: 700;
-    }}
+tbody {
+  display: table-row-group;
+}
 
-    tr:last-child td {{ border-bottom: 0; }}
-    td:first-child {{ font-weight: 700; color: var(--ink); }}
-    td {{ overflow-wrap: anywhere; }}
+tr {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
 
     .empty {{ color: var(--muted); }}
 
@@ -674,19 +671,19 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
       </div>
     </section>
 
-    <section class=\"card\">
-      <h3>Alla parametrar</h3>
-      <div class=\"table-wrap\">
-        <table>
-          <thead>
-            <tr><th>Parameter</th><th>Värde</th><th>Kategori</th><th>Riktvärden</th><th>Status</th></tr>
-          </thead>
-          <tbody>
-            {build_parameter_rows(parameters)}
-          </tbody>
-        </table>
-      </div>
-    </section>
+    <section class="parameter-section">
+  <h3>Alla parametrar</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Parameter</th><th>Värde</th><th>Kategori</th><th>Riktvärden</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        {build_parameter_rows(parameters)}
+      </tbody>
+    </table>
+  </div>
+</section>
 
     <section class=\"card\">
       <div class=\"kicker\">Slutsats</div>
