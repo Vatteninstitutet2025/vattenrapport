@@ -160,7 +160,7 @@ def status_label(status: str) -> str:
         "otjänligt": "Otjänligt",
         "tjänligt med anmärkning": "Tjänligt med anmärkning",
         "tjänligt": "Tjänligt",
-        "ej bedömd": "Ej bedömd",
+        "ej bedömd": "Informationsparameter",
     }.get((status or "").strip().lower(), status)
 
 
@@ -198,6 +198,270 @@ def build_parameter_rows(parameters: list[dict]) -> str:
         )
     return "".join(rows)
 
+
+
+def _norm_name(value: object) -> str:
+    import unicodedata
+    text = str(value or "").lower()
+    text = unicodedata.normalize("NFKD", text)
+    text = "".join(ch for ch in text if not unicodedata.combining(ch))
+    return text
+
+
+PARAMETER_GROUPS = [
+    ("Mikrobiologisk kvalitet", "Bakterier och mikroorganismer som visar om vattnet kan vara påverkat av ytvatten, avlopp eller annan mikrobiologisk förorening."),
+    ("Utseende, lukt och allmän vattenkvalitet", "Parametrar som påverkar lukt, färg, grumlighet och allmän upplevelse av vattnet."),
+    ("pH, salter och korrosion", "Vattnets surhet, buffringsförmåga och salthalt. Viktigt för smak, korrosion och teknisk påverkan."),
+    ("Näringsämnen och påverkan från omgivningen", "Kan indikera påverkan från avlopp, gödsel, jordbruk, ytvatten eller biologisk aktivitet i brunnen."),
+    ("Hårdhet och mineraler", "Mineraler som påverkar kalkavlagringar, smak, dosering av tvättmedel och teknisk funktion."),
+    ("Tekniska metaller", "Metaller som ofta påverkar smak, missfärgning, beläggningar, tvätt, porslin och installationer."),
+    ("Hälsorelaterade metaller och spårämnen", "Metaller och spårämnen som främst bedöms utifrån långsiktig hälsopåverkan."),
+    ("Radon och radioaktivitet", "Radioaktiva ämnen som kan förekomma naturligt i berggrund och grundvatten."),
+    ("Prov- och mätinformation", "Uppgifter som beskriver provtagning eller mätförhållanden, men som normalt inte är en egen kvalitetsanmärkning."),
+    ("Övriga parametrar", "Parametrar som inte automatiskt kunde placeras i någon av huvudgrupperna."),
+]
+
+
+def parameter_group_name(parameter: dict) -> str:
+    name = _norm_name(" ".join(str(parameter.get(key) or "") for key in ("parameter_display", "parameter", "name")))
+    if "vattentemperatur" in name or "temperatur vid ph" in name or "provtagning" in name:
+        return "Prov- och mätinformation"
+    if any(term in name for term in ["odlingsbara", "escherichia", "e. coli", "coli", "koliform"]):
+        return "Mikrobiologisk kvalitet"
+    if any(term in name for term in ["lukt", "turbiditet", "farg", "cod-mn", "cod mn", "permanganat"]):
+        return "Utseende, lukt och allmän vattenkvalitet"
+    if any(term in name for term in ["ph", "alkalinitet", "konduktivitet", "klorid", "sulfat", "fluorid"]):
+        return "pH, salter och korrosion"
+    if any(term in name for term in ["ammonium", "ammoniumkvave", "fosfat", "fosfatfosfor", "nitrat", "nitratkvave", "nitrit", "nitrit-nitrogen", "no3", "no2"]):
+        return "Näringsämnen och påverkan från omgivningen"
+    if any(term in name for term in ["hardhet", "kalcium", "magnesium", "natrium", "kalium"]):
+        return "Hårdhet och mineraler"
+    if any(term in name for term in ["jarn", "mangan", "aluminium", "koppar"]):
+        return "Tekniska metaller"
+    if any(term in name for term in ["antimon", "arsenik", "bly", "kadmium", "krom", "nickel", "selen", "uran"]):
+        return "Hälsorelaterade metaller och spårämnen"
+    if "radon" in name or "radio" in name:
+        return "Radon och radioaktivitet"
+    return "Övriga parametrar"
+
+
+def build_parameter_row(parameter: dict) -> str:
+    value = f"{(parameter.get('value_text') or '').strip()} {(parameter.get('unit') or '').strip()}".strip()
+    return (
+        f"<tr class=\"{status_class(parameter.get('status'))}\">"
+        f"<td>{esc(parameter.get('parameter_display'))}</td>"
+        f"<td>{esc(value)}</td>"
+        f"<td>{format_reference(parameter.get('reference_values'), parameter.get('reference_text'))}</td>"
+        f"<td>{esc(status_label(parameter.get('status', '')))}</td>"
+        f"</tr>"
+    )
+
+
+def build_grouped_parameters_html(parameters: list[dict]) -> str:
+    if not parameters:
+        return '<p class="empty">Inga parametrar att visa.</p>'
+    order = {"otjänligt": 0, "tjänligt med anmärkning": 1, "tjänligt": 2, "ej bedömd": 3}
+    groups: dict[str, list[dict]] = {name: [] for name, _ in PARAMETER_GROUPS}
+    for parameter in parameters:
+        groups.setdefault(parameter_group_name(parameter), []).append(parameter)
+    group_descriptions = dict(PARAMETER_GROUPS)
+    blocks = []
+    for group_name, description in PARAMETER_GROUPS:
+        items = groups.get(group_name, [])
+        if not items:
+            continue
+        sorted_items = sorted(
+            items,
+            key=lambda p: (
+                order.get((p.get("status") or "").strip().lower(), 9),
+                p.get("parameter_display", p.get("parameter", "")),
+            ),
+        )
+        rows = "".join(build_parameter_row(item) for item in sorted_items)
+        blocks.append(f"""
+            <article class="parameter-group">
+              <div class="parameter-group-head">
+                <div>
+                  <h4>{esc(group_name)}</h4>
+                  <p>{esc(group_descriptions.get(group_name, description))}</p>
+                </div>
+                <span>{len(sorted_items)} st</span>
+              </div>
+              <div class="table-wrap group-table-wrap">
+                <table>
+                  <thead>
+                    <tr><th>Parameter</th><th>Värde</th><th>Riktvärden</th><th>Status</th></tr>
+                  </thead>
+                  <tbody>{rows}</tbody>
+                </table>
+              </div>
+            </article>
+            """)
+    return "".join(blocks)
+
+
+
+def _parse_number(value: object) -> float | None:
+    if value is None:
+        return None
+    import re
+
+    text = str(value).strip().replace("\xa0", " ").replace(",", ".")
+    match = re.search(r"-?\d+(?:\.\d+)?", text)
+    if not match:
+        return None
+    try:
+        return float(match.group(0))
+    except ValueError:
+        return None
+
+
+def _find_hardness_parameter(parameters: list[dict]) -> dict | None:
+    for p in parameters:
+        name = " ".join(
+            str(p.get(key) or "")
+            for key in ("parameter_display", "parameter", "name")
+        ).lower()
+        if "hårdhet" in name or "hardness" in name:
+            return p
+    return None
+
+
+def _hardness_to_dh(value: float, unit: str) -> float:
+    unit_l = (unit or "").lower()
+    if "mmol" in unit_l:
+        return value * 5.6
+    return value
+
+
+def _hardness_label(value_dh: float) -> str:
+    if value_dh < 2:
+        return "Mycket mjukt"
+    if value_dh < 5:
+        return "Mjukt"
+    if value_dh < 10:
+        return "Medelhårt"
+    if value_dh < 20:
+        return "Hårt"
+    return "Mycket hårt"
+
+
+def build_hardness_scale_html(parameters: list[dict]) -> str:
+    p = _find_hardness_parameter(parameters)
+    if not p:
+        return ""
+
+    raw_value = p.get("value_text") or p.get("value") or p.get("result")
+    unit = (p.get("unit") or "°dH").strip() or "°dH"
+    value = _parse_number(raw_value)
+    if value is None:
+        return ""
+
+    value_dh = _hardness_to_dh(value, unit)
+    label = _hardness_label(value_dh)
+    marker_left = max(0, min(100, (value_dh / 25) * 100))
+    display_value = f"{value:g}".replace(".", ",")
+
+    return f'''
+    <section class="hardness-card">
+      <div class="hardness-head">
+        <div>
+          <div class="kicker">Vattnets hårdhet</div>
+          <h3>{esc(label)}</h3>
+        </div>
+        <div class="hardness-value">
+          <span>{esc(display_value)}</span>
+          <small>{esc(unit)}</small>
+        </div>
+      </div>
+
+      <div class="hardness-scale" aria-label="Skala för vattnets hårdhet">
+        <div class="hardness-marker" style="left: {marker_left:.1f}%"></div>
+      </div>
+
+      <div class="hardness-labels">
+        <span>Mycket mjukt<br><strong>0–2</strong></span>
+        <span>Mjukt<br><strong>2–5</strong></span>
+        <span>Medelhårt<br><strong>5–10</strong></span>
+        <span>Hårt<br><strong>10–20</strong></span>
+        <span>Mycket hårt<br><strong>&gt;20</strong></span>
+      </div>
+
+      <p class="hardness-note">
+        Hårdheten påverkar främst kalkavlagringar, dosering av tvätt- och diskmedel samt teknisk funktion i installationer.
+      </p>
+    </section>
+    '''
+
+
+
+def _find_ph_parameter(parameters: list[dict]) -> dict | None:
+    for p in parameters:
+        name = " ".join(
+            str(p.get(key) or "")
+            for key in ("parameter_display", "parameter", "name")
+        ).lower()
+        # Undvik temperaturen vid pH-mätning. Vi vill ha själva parametern pH.
+        if "temperatur" in name or "temperature" in name:
+            continue
+        padded = f" {name} "
+        if name.strip() == "ph" or " ph " in padded or name.startswith("ph ") or "ph-värde" in name:
+            return p
+    return None
+
+
+def _ph_label(value: float) -> str:
+    if value < 6.5:
+        return "Surt"
+    if value <= 9.0:
+        return "Nära neutralt"
+    return "Basiskt"
+
+
+def build_ph_scale_html(parameters: list[dict]) -> str:
+    p = _find_ph_parameter(parameters)
+    if not p:
+        return ""
+
+    raw_value = p.get("value_text") or p.get("value") or p.get("result")
+    value = _parse_number(raw_value)
+    if value is None:
+        return ""
+
+    label = _ph_label(value)
+    marker_left = max(0, min(100, (value / 14) * 100))
+    display_value = f"{value:g}".replace(".", ",")
+
+    return f'''
+    <section class="ph-card">
+      <div class="hardness-head">
+        <div>
+          <div class="kicker">pH-värde</div>
+          <h3>{esc(label)}</h3>
+        </div>
+        <div class="hardness-value">
+          <span>{esc(display_value)}</span>
+          <small>pH</small>
+        </div>
+      </div>
+
+      <div class="ph-scale" aria-label="Skala för pH-värde">
+        <div class="hardness-marker" style="left: {marker_left:.1f}%"></div>
+      </div>
+
+      <div class="ph-labels">
+        <span>Surt<br><strong>0</strong></span>
+        <span>Svagt surt<br><strong>6,5</strong></span>
+        <span>Neutralt<br><strong>7</strong></span>
+        <span>Basiskt<br><strong>9</strong></span>
+        <span>Starkt basiskt<br><strong>14</strong></span>
+      </div>
+
+      <p class="hardness-note">
+        pH visar om vattnet är surt, nära neutralt eller basiskt. Lågt pH kan öka risken för korrosion i ledningar och installationer.
+      </p>
+    </section>
+    '''
 
 def build_findings_html(findings: list[dict]) -> str:
     if not findings:
@@ -253,7 +517,7 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
       --line-soft: #edf2f7;
       --panel: #ffffff;
       --panel-soft: #f8fafc;
-      --brand: #0f766e;
+      --brand: #23395d;
       --brand-dark: #0f4f4a;
       --brand-soft: #e6fffb;
       --blue-soft: #eff6ff;
@@ -309,12 +573,13 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
       display: inline-block;
       padding: 3px 8px;
       border-radius: var(--radius-sm);
-      background: rgba(255,255,255,0.16);
-      color: #d9fffb;
+      background: #1e3a5f;
+      color: #ffffff;
       font-size: 9.2px;
       font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
+      margin-bottom: 12px;
     }}
 
     h1, h2, h3 {{
@@ -438,6 +703,128 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
       flex: 0 0 auto;
     }}
 
+
+    .hardness-card {{
+      margin-top: 5.3mm;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 4.8mm;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }}
+
+    .hardness-head {{
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 12px;
+    }}
+
+    .hardness-value {{
+      min-width: 26mm;
+      padding: 8px 10px;
+      border-radius: 12px;
+      background: #ffffff;
+      border: 1px solid var(--line);
+      text-align: right;
+    }}
+
+    .hardness-value span {{
+      display: block;
+      font-size: 20px;
+      line-height: 1;
+      font-weight: 800;
+      color: var(--ink);
+      letter-spacing: -0.03em;
+    }}
+
+    .hardness-value small {{
+      display: block;
+      margin-top: 3px;
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }}
+
+    .hardness-scale {{
+      position: relative;
+      height: 12px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #dbeafe 0%, #ccfbf1 20%, #fef3c7 40%, #fed7aa 70%, #fecaca 100%);
+      border: 1px solid rgba(15, 23, 42, 0.10);
+      overflow: visible;
+    }}
+
+    .hardness-marker {{
+      position: absolute;
+      top: 50%;
+      width: 14px;
+      height: 14px;
+      margin-left: -7px;
+      margin-top: -7px;
+      border-radius: 999px;
+      background: var(--ink);
+      border: 3px solid #ffffff;
+      box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.18);
+    }}
+
+    .hardness-labels {{
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 8.7px;
+      line-height: 1.25;
+    }}
+
+    .hardness-labels span {{ text-align: center; }}
+    .hardness-labels strong {{ font-size: 8.4px; color: var(--ink); }}
+
+    .hardness-note {{
+      margin-top: 9px;
+      color: var(--muted);
+      font-size: 10.3px;
+    }}
+
+
+
+    .ph-card {{
+      margin-top: 3mm;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 4.8mm;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }}
+
+    .ph-scale {{
+      position: relative;
+      height: 12px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #fecaca 0%, #fef3c7 46%, #dcfce7 50%, #dbeafe 64%, #ddd6fe 100%);
+      border: 1px solid rgba(15, 23, 42, 0.10);
+      overflow: visible;
+    }}
+
+    .ph-labels {{
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 8.7px;
+      line-height: 1.25;
+    }}
+
+    .ph-labels span {{ text-align: center; }}
+    .ph-labels strong {{ font-size: 8.4px; color: var(--ink); }}
+
     .grid {{
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -543,6 +930,60 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
     .parameter-title h3 {{ margin: 0; }}
     .parameter-note {{ color: var(--muted); font-size: 9.8px; }}
 
+    .parameter-groups {{
+      display: grid;
+      gap: 4.5mm;
+    }}
+
+    .parameter-group {{
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #ffffff;
+      overflow: hidden;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }}
+
+    .parameter-group-head {{
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: start;
+      padding: 11px 12px 9px;
+      background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+      border-bottom: 1px solid var(--line-soft);
+    }}
+
+    .parameter-group-head h4 {{
+      margin: 0;
+      font-size: 12.6px;
+      line-height: 1.15;
+      color: var(--ink);
+    }}
+
+    .parameter-group-head p {{
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 9.6px;
+      line-height: 1.35;
+    }}
+
+    .parameter-group-head span {{
+      display: inline-block;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: #eef2ff;
+      color: #475569;
+      font-size: 8.8px;
+      font-weight: 800;
+      white-space: nowrap;
+    }}
+
+    .group-table-wrap {{
+      border: 0;
+      border-radius: 0;
+    }}
+
     .table-wrap {{
       overflow: visible;
       border: 1px solid var(--line);
@@ -556,7 +997,7 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
     table {{
       width: 100%;
       border-collapse: collapse;
-      font-size: 10.35px;
+      font-size: 12.5px;
       background: #ffffff;
       break-inside: auto;
       page-break-inside: auto;
@@ -576,7 +1017,7 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
     th {{
       background: #f1f5f9;
       color: #475569;
-      font-size: 8.8px;
+      font-size: 12.5px;
       text-transform: uppercase;
       letter-spacing: 0.045em;
       font-weight: 800;
@@ -588,7 +1029,7 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
     }}
 
     tr:last-child td {{ border-bottom: 0; }}
-    td:first-child {{ font-weight: 800; color: var(--ink); }}
+    td:first-child {{ font-weight: 600; color: var(--ink); }}
 
     .empty {{ color: var(--muted); }}
 
@@ -599,6 +1040,48 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
       padding-top: 4mm;
       border-top: 1px solid var(--line-soft);
     }}
+        .legend-table {{
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }}
+
+    .legend-table th,
+    .legend-table td {{
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line-soft);
+      text-align: left;
+      vertical-align: top;
+    }}
+
+    .legend-table th {{
+      background: #f1f5f9;
+      color: #475569;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-weight: 800;
+      white-space: nowrap;
+    }}
+
+    .legend-table th:first-child,
+    .legend-table td:first-child {{
+      width: 170px;
+      white-space: nowrap;
+    }}
+
+    .legend-explainer {{
+      margin-top: 12px;
+      padding: 10px 12px;
+      background: #f8fafc;
+      border: 1px solid var(--line-soft);
+      border-radius: 10px;
+    }}
+
+    .legend-explainer p {{
+      margin: 4px 0;
+    }}
+
 
     @media print {{
       html, body {{ background: #ffffff; font-size: 11.8px; }}
@@ -608,7 +1091,15 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
         break-inside: avoid;
         page-break-inside: avoid;
       }}
-      .parameter-section, .table-wrap, table {{
+      .parameter-section, .parameter-groups {{
+        break-inside: auto;
+        page-break-inside: auto;
+      }}
+      .parameter-group {{
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }}
+      .table-wrap, table {{
         break-inside: auto;
         page-break-inside: auto;
       }}
@@ -616,7 +1107,7 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
         break-inside: avoid;
         page-break-inside: avoid;
       }}
-      h2, h3, .parameter-title {{ break-after: avoid; page-break-after: avoid; }}
+      h2, h3, h4, .parameter-title, .parameter-group-head {{ break-after: avoid; page-break-after: avoid; }}
       .grid {{ grid-template-columns: 1fr 1fr; gap: 4.5mm; }}
     }}
   </style>
@@ -626,7 +1117,7 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
     <header class=\"topbar\">
       <div>
         <div class=\"eyebrow\">Svenska Vatteninstitutet · Analysrapport</div>
-        <h1>Vattenrapport</h1>
+        <h1>Vattenrapport för din fastighet</h1>
       </div>
       <aside class=\"report-meta\">
         <div class=\"meta-line\"><span>Fastighet</span><span>{esc(meta.get('fastighetsbeteckning'))}</span></div>
@@ -656,6 +1147,9 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
         </div>
       </div>
     </section>
+
+    {build_hardness_scale_html(parameters)}
+    {build_ph_scale_html(parameters)}
 
     <section class=\"card\">
       <div class=\"card-header\">
@@ -722,30 +1216,84 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
     <section class="parameter-section">
       <div class="parameter-title">
         <h3>Alla parametrar</h3>
-        <span class="parameter-note">Fullständig parameteröversikt</span>
+        <span class="parameter-note">Grupperad parameteröversikt</span>
       </div>
-      <div class="table-wrap">
-    <table>
-      <thead>
-        <tr><th>Parameter</th><th>Värde</th><th>Kategori</th><th>Riktvärden</th><th>Status</th></tr>
-      </thead>
-      <tbody>
-        {build_parameter_rows(parameters)}
-      </tbody>
-    </table>
-  </div>
+      <div class="parameter-groups">
+        {build_grouped_parameters_html(parameters)}
+      </div>
 </section>
 
     <section class=\"card\">
-      <div class=\"kicker\">Slutsats</div>
-      <h3>Slutsats</h3>
-      {nl2html(sections.get('conclusion'))}
-    </section>
+  <div class=\"kicker\">Slutsats</div>
+  <h3>Slutsats</h3>
+  {nl2html(sections.get('conclusion'))}
+</section>
+
+<section class="card">
+  <div class="kicker">Förklaring</div>
+  <h3>Så tolkar du bedömningarna</h3>
+
+  <table class="legend-table">
+    <thead>
+      <tr>
+        <th>Bedömning</th>
+        <th>Förklaring</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Tjänligt</strong></td>
+        <td>
+          Vattnet uppfyller aktuella riktvärden och bedöms normalt inte kräva
+          någon särskild åtgärd.
+        </td>
+      </tr>
+
+      <tr>
+        <td><strong>Tjänligt med anmärkning</strong></td>
+        <td>
+          En eller flera parametrar avviker från rekommenderade nivåer.
+          Vattnet kan ofta användas, men uppföljning eller åtgärder kan vara
+          motiverade beroende på avvikelsens omfattning.
+        </td>
+      </tr>
+
+      <tr>
+        <td><strong>Otjänligt</strong></td>
+        <td>
+          Minst en parameter avviker på en nivå som kan innebära risk för hälsa,
+          installationer eller användning. Vidare bedömning och åtgärder
+          rekommenderas.
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="legend-explainer">
+    <p><strong>H</strong> = Hälsomässig bedömning</p>
+    <p><strong>T</strong> = Teknisk bedömning</p>
+    <p><strong>E</strong> = Estetisk bedömning</p>
+  </div>
+
+  <p>
+    Hälsomässiga anmärkningar avser risker för människors hälsa.
+    Tekniska anmärkningar avser påverkan på installationer, ledningar,
+    varmvattenberedare och annan utrustning.
+    Estetiska anmärkningar avser smak, lukt, färg och den allmänna
+    upplevelsen av vattnet.
+  </p>
+</section>
+
+<p class=\"disclaimer\">
 
     <p class=\"disclaimer\">
-      Rapporten är automatiskt genererad och utgör endast vägledande information.
-      Svenska Vatteninstitutet ansvarar inte för beslut, åtgärder eller konsekvenser
-      som baseras på rapportens innehåll.
+      Rapporten har tagits fram med hjälp av automatiserad bearbetning och tolkning av analysresultat från ackrediterat laboratorium. Trots omfattande kvalitetskontroller kan fel, avvikelser eller feltolkningar förekomma vid inläsning, bearbetning eller presentation av data.
+
+Rapporten är avsedd som vägledande information och ska inte betraktas som medicinsk rådgivning, hälsobedömning, teknisk projektering, myndighetsbeslut eller annan professionell rådgivning. Bedömningar, slutsatser, rekommendationer och åtgärdsförslag baseras på tillgängliga analysresultat och generell fackkunskap men tar inte hänsyn till samtliga förhållanden som kan påverka vattenkvaliteten, såsom installationer, lokala förutsättningar, provtagningstillfälle eller förändringar över tid.
+
+Fastighetsägaren ansvarar själv för hur informationen tolkas och används samt för eventuella beslut, åtgärder eller investeringar som grundas på rapportens innehåll. Vid osäkerhet eller inför beslut av betydelse rekommenderas att analysresultatet bedöms tillsammans med relevant sakkunnig.
+
+Svenska Vatteninstitutet ansvarar inte för direkta eller indirekta skador, kostnader, uteblivna besparingar eller andra konsekvenser som kan uppstå till följd av användning av rapporten eller de rekommendationer som lämnas i den.
     </p>
   </main>
 </body>
