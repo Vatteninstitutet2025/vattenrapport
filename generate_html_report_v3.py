@@ -345,6 +345,21 @@ def _hardness_label(value_dh: float) -> str:
         return "Hårt"
     return "Mycket hårt"
 
+def _hardness_marker_position(value_dh: float) -> float:
+    if value_dh <= 0:
+        return 0.0
+    if value_dh < 2:
+        return (value_dh / 2) * 20
+    if value_dh < 5:
+        return 20 + ((value_dh - 2) / 3) * 20
+    if value_dh < 10:
+        return 40 + ((value_dh - 5) / 5) * 20
+    if value_dh < 20:
+        return 60 + ((value_dh - 10) / 10) * 20
+    if value_dh < 25:
+        return 80 + ((value_dh - 20) / 5) * 20
+
+    return 100.0
 
 def build_hardness_scale_html(parameters: list[dict]) -> str:
     p = _find_hardness_parameter(parameters)
@@ -359,7 +374,7 @@ def build_hardness_scale_html(parameters: list[dict]) -> str:
 
     value_dh = _hardness_to_dh(value, unit)
     label = _hardness_label(value_dh)
-    marker_left = max(0, min(100, (value_dh / 25) * 100))
+    marker_left = _hardness_marker_position(value_dh)
     display_value = f"{value:g}".replace(".", ",")
 
     return f'''
@@ -463,6 +478,46 @@ def build_ph_scale_html(parameters: list[dict]) -> str:
     </section>
     '''
 
+
+
+def build_summary_stats_html(parameters: list[dict]) -> str:
+    assessed = [
+        p for p in parameters
+        if (p.get("status") or "").strip().lower() != "ej bedömd"
+    ]
+
+    total = len(assessed)
+    good = len([p for p in assessed if (p.get("status") or "").strip().lower() == "tjänligt"])
+    remark = len([p for p in assessed if (p.get("status") or "").strip().lower() == "tjänligt med anmärkning"])
+    unfit = len([p for p in assessed if (p.get("status") or "").strip().lower() == "otjänligt"])
+    deviating = remark + unfit
+
+    return f"""
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-number">{total}</div>
+        <div class="stat-label">Bedömda parametrar</div>
+      </div>
+
+      <div class="stat-card good">
+        <div class="stat-number">{good}</div>
+        <div class="stat-label">Tjänliga</div>
+      </div>
+
+      <div class="stat-card remark">
+        <div class="stat-number">{remark}</div>
+        <div class="stat-label">Med anmärkning</div>
+      </div>
+
+      <div class="stat-card unfit">
+        <div class="stat-number">{unfit}</div>
+        <div class="stat-label">Otjänliga</div>
+      </div>
+
+    </section>
+    """
+
+
 def build_findings_html(findings: list[dict]) -> str:
     if not findings:
         return '<p class="empty">Inga avvikande fynd att prioritera.</p>'
@@ -513,22 +568,22 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
       --ink: #111827;
       --text: #334155;
       --muted: #64748b;
-      --line: #dbe3ee;
+      --line: #d6dee8;
       --line-soft: #edf2f7;
       --panel: #ffffff;
       --panel-soft: #f8fafc;
       --brand: #23395d;
-      --brand-dark: #0f4f4a;
-      --brand-soft: #e6fffb;
-      --blue-soft: #eff6ff;
-      --warn-soft: #fff7ed;
-      --warn-line: #fdba74;
-      --danger-soft: #fff1f2;
-      --danger-line: #fda4af;
-      --good-soft: #f0fdf4;
-      --good-line: #86efac;
-      --unknown-soft: #f8fafc;
-      --unknown-line: #cbd5e1;
+      --brand-dark: #23395d;
+      --brand-soft: #eef7f6;
+      --blue-soft: #f3f7fb;
+      --warn-soft: #ffffff;
+      --warn-line: #d6dee8;
+      --danger-soft: #ffffff;
+      --danger-line: #d6dee8;
+      --good-soft: #ffffff;
+      --good-line: #d6dee8;
+      --unknown-soft: #ffffff;
+      --unknown-line: #d6dee8;
       --radius-lg: 14px;
       --radius-md: 10px;
       --radius-sm: 999px;
@@ -653,7 +708,7 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
       left: 0;
       top: 0;
       bottom: 0;
-      width: 4px;
+      width: 3px;
       border-radius: var(--radius-lg) 0 0 var(--radius-lg);
       background: var(--brand);
     }}
@@ -679,7 +734,7 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
 
     .status-label {{
       font-size: 9.2px;
-      color: var(--muted);
+      color: #4f6487;
       text-transform: uppercase;
       letter-spacing: 0.06em;
       font-weight: 700;
@@ -880,10 +935,10 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
     .status-remark {{ background: var(--warn-soft); border-color: var(--warn-line); }}
     .status-good {{ background: var(--good-soft); border-color: var(--good-line); }}
     .status-unknown {{ background: var(--unknown-soft); border-color: var(--unknown-line); }}
-    .finding.status-unfit {{ border-left-color: #e11d48; }}
-    .finding.status-remark {{ border-left-color: #f97316; }}
-    .finding.status-good {{ border-left-color: #16a34a; }}
-    .finding.status-unknown {{ border-left-color: #94a3b8; }}
+    .finding.status-unfit {{ border-left-color: #e11d48; background: #fbeaea; }}
+    .finding.status-remark {{ border-left-color: #d4be95; background: #fcf5e8; }}
+    .finding.status-good {{ border-left-color: #16a34a; background: #edf8f0; }}
+    .finding.status-unknown {{ border-left-color: #94a3b8; background: #eef2f6; }}
     .status-unfit .dot {{ background: #e11d48; }}
     .status-remark .dot {{ background: #f97316; }}
     .status-good .dot {{ background: #16a34a; }}
@@ -1083,6 +1138,81 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
     }}
 
 
+
+
+    .stats-grid {{
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 4mm;
+      width: 100%;
+      margin-top: 5.3mm;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }}
+
+    .stat-card {{
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      padding: 10px 8px;
+      text-align: center;
+      min-height: 21mm;
+      box-sizing: border-box;
+    }}
+
+    .stat-number {{
+      font-size: 25px;
+      font-weight: 800;
+      line-height: 1;
+      color: var(--ink);
+      letter-spacing: -0.03em;
+    }}
+
+    .stat-label {{
+      margin-top: 5px;
+      font-size: 9.3px;
+      line-height: 1.25;
+      color: var(--muted);
+      font-weight: 700;
+    }}
+
+    .stat-card.good {{
+      background: var(--good-soft);
+      border-color: var(--good-line);
+    }}
+
+    .stat-card.remark {{
+      background: var(--warn-soft);
+      border-color: var(--warn-line);
+    }}
+
+    .stat-card.unfit {{
+      background: var(--danger-soft);
+      border-color: var(--danger-line);
+    }}
+
+    .stat-card.deviating {{
+      background: var(--blue-soft);
+      border-color: #bfdbfe;
+    }}
+
+    .parameter-group tr.status-unfit {{
+    background: #fbeaea;
+    }}
+
+    .parameter-group tr.status-remark {{
+    background: #fcf5e8;
+    }}
+
+    .parameter-group tr.status-good {{
+    background: #edf8f0;
+    }}
+
+    .parameter-group tr.status-unknown {{
+    background: #eef2f6;
+    }}
+
+
     @media print {{
       html, body {{ background: #ffffff; font-size: 11.8px; }}
       .page {{ width: 100%; max-width: none; margin: 0; padding: 0; }}
@@ -1147,6 +1277,8 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
         </div>
       </div>
     </section>
+
+    {build_summary_stats_html(parameters)}
 
     {build_hardness_scale_html(parameters)}
     {build_ph_scale_html(parameters)}
@@ -1283,8 +1415,6 @@ def generate_html(input_path: str = "report_model_v3.json", output_path: str = "
     upplevelsen av vattnet.
   </p>
 </section>
-
-<p class=\"disclaimer\">
 
     <p class=\"disclaimer\">
       Rapporten har tagits fram med hjälp av automatiserad bearbetning och tolkning av analysresultat från ackrediterat laboratorium. Trots omfattande kvalitetskontroller kan fel, avvikelser eller feltolkningar förekomma vid inläsning, bearbetning eller presentation av data.
